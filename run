@@ -1,0 +1,12 @@
+#! /bin/bash
+
+SRC_DIR=src
+OUT_DIR=exe
+CP=include/*
+JAVA=java
+
+make
+#${JAVA} -Xmx100g -cp ${CP}:${OUT_DIR} bnncompiler.core.Brute
+#${JAVA} -Xmx100g -cp ${CP}:${OUT_DIR} bnncompiler.core.LearnOddFromCnfWithGuessing 
+
+${JAVA} -Xmx100g -cp ${CP}:${OUT_DIR} bnncompiler.core.LearnOddFromCnf
