@@ -4,6 +4,7 @@ SRC_DIR=src
 OUT_DIR=exe
 JAVA=java
 
+mkdir exe/
 make
 set -x
 
