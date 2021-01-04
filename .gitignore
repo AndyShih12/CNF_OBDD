@@ -1,3 +1,5 @@
 exe/*
 output/*.obddas
 *.DS_Store
+bnn/BinaryNet/Nets/*
+bnn/BinaryNet/Results/*

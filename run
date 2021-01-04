@@ -4,7 +4,7 @@ SRC_DIR=src
 OUT_DIR=exe
 JAVA=java
 
-mkdir exe/
+mkdir -p exe
 make
 set -x
 
@@ -21,7 +21,7 @@ type=zero
 
 # comment these 2 lines out if BNN is already trained
 cd bnn/BinaryNet
-./run ${num_features} ${num_hidden}
+./run ${num_hidden} ${num_features}
 cd ../../
 
 ${JAVA} -Xmx100g -cp ${OUT_DIR} bnncompiler.core.LearnOddFromBNNCnf ${num_features} ${num_hidden} ${radius} ${type}
