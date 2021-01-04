@@ -1,0 +1,26 @@
+#!/bin/bash
+
+if [ "$#" -lt 2 ]; then
+  echo "Usage: ./run NUM_HIDDEN NUM_FEATURES"
+  exit 2
+fi
+
+NUM_HIDDEN="$1"
+NUM_FEATURES="$2"
+
+echo "$NUM_FEATURES" | lua gen_MNIST_data.lua
+
+echo "$NUM_HIDDEN $NUM_FEATURES $NUM_FEATURES" | th Main_BinaryNet_MNIST8x8.lua -network BinaryNet_MNIST8x8_Model
+
+BASENAME="Net8x8_${NUM_FEATURES}_${NUM_HIDDEN}"
+RECENT_DIRECTORY=$(ls -t Results | head -1)
+cp Results/${RECENT_DIRECTORY}/Net Nets/${BASENAME}.t7
+echo "$NUM_HIDDEN $NUM_FEATURES" | lua extract_params.lua
+
+echo "$NUM_HIDDEN $NUM_FEATURES" | python bnntocnf.py
+
+echo "Preprocessing CNF"
+echo "1..$(( $NUM_FEATURES + 1 ))" > whitelist.txt
+cpp/riss-solver/build/bin/coprocessor -dimacs=Nets/${BASENAME}_pp.cnf -verb=0 -config="-enabled_cp3 -cp3_stats -bve -bve_red_lits=1 -fm -no-cp3_fm_vMulAMO -unhide -cp3_uhdIters=5 -cp3_uhdEE -cp3_uhdTrans -bce -bce-cle -no-bce-bce -dense -xor -no-xorFindSubs -xorEncSize=3 -xorLimit=100000 -no-xorKeepUsed -cp3_iters=2 -ee -cp3_ee_level=3 -cp3_ee_it -rlevel=2 -bve_early -revMin -init-act=3 -actStart=2048 -keepWorst=0.01 -whiteList=whitelist.txt" Nets/${BASENAME}.cnf > /dev/null
+
+echo "Done preprocessing CNF: Outputted file to Nets/${BASENAME}_pp.cnf"
