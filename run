@@ -2,11 +2,25 @@
 
 SRC_DIR=src
 OUT_DIR=exe
-CP=include/*
 JAVA=java
 
 make
-#${JAVA} -Xmx100g -cp ${CP}:${OUT_DIR} bnncompiler.core.Brute
-#${JAVA} -Xmx100g -cp ${CP}:${OUT_DIR} bnncompiler.core.LearnOddFromCnfWithGuessing 
+set -x
 
-${JAVA} -Xmx100g -cp ${CP}:${OUT_DIR} bnncompiler.core.LearnOddFromCnf
+# 4 arguments
+# num_features num_hidden radius type
+# num_features: 64 (since 8x8)
+# num_hidden: 5
+# radius: some integer between 1 to 7 (or higher, but probably won't finish)
+# type: one of "zero", "eight", or "smile"
+num_features=64
+num_hidden=5
+radius=6
+type=zero
+
+# comment these 2 lines out if BNN is already trained
+cd bnn/BinaryNet
+./run ${num_features} ${num_hidden}
+cd ../../
+
+${JAVA} -Xmx100g -cp ${OUT_DIR} bnncompiler.core.LearnOddFromBNNCnf ${num_features} ${num_hidden} ${radius} ${type}

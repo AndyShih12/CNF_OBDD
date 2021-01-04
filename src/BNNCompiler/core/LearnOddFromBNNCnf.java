@@ -5,7 +5,7 @@ import bnncompiler.model.*;
 import java.io.*;
 import java.util.*;
 
-public class LearnOddFromCnf extends LearnOdd {
+public class LearnOddFromBNNCnf extends LearnOdd {
 
   CnfFormula cnf_formula;
   int cnf_output_term;
@@ -20,17 +20,39 @@ public class LearnOddFromCnf extends LearnOdd {
   double[][] thresh;
   String[][] comp;
   int target_class;
+  int center_id;
+
+  int radius;
 
   public static void main(String args[]) {
-    LearnOddFromCnf T = new LearnOddFromCnf(64);
+    int num_features = Integer.parseInt(args[0]);
+    int num_hidden = Integer.parseInt(args[1]);
+    int radius = Integer.parseInt(args[2]);
+    String center_type = args[3];
+
+    LearnOddFromBNNCnf T = new LearnOddFromBNNCnf(num_features, num_hidden, radius, center_type);
   }
 
-  public LearnOddFromCnf(int num_features) {
+  public LearnOddFromBNNCnf(int num_features, int num_hidden, int radius, String center_type) {
     super(num_features);
 
-    int num_hidden = 5;
-    String filename = "/space/andyshih2/bnn/BinaryNet/Nets/Net8x8_" + String.valueOf(num_features) + "_" + String.valueOf(num_hidden) + "_pp.cnf";
-    String parameters_filename = "/space/andyshih2/bnn/BinaryNet/Nets/Net8x8_" + String.valueOf(num_features) + "_" + String.valueOf(num_hidden) + ".txt";
+    this.radius = radius;
+    if (center_type.equals("zero")) {
+      this.center_id = 0;
+    }
+    else if (center_type.equals("eight")) {
+      this.center_id = 1;
+    }
+    else if (center_type.equals("smile")) {
+      this.center_id = 2;
+    }
+    else {
+      throw new IllegalArgumentException("type must be one of zero, eight, or smile");
+    }
+    
+
+    String filename = "./bnn/BinaryNet/Nets/Net8x8_" + String.valueOf(num_features) + "_" + String.valueOf(num_hidden) + "_pp.cnf";
+    String parameters_filename = "./bnn/BinaryNet/Nets/Net8x8_" + String.valueOf(num_features) + "_" + String.valueOf(num_hidden) + ".txt";
     this.target_class = 0;
 
     try {
@@ -125,20 +147,21 @@ public class LearnOddFromCnf extends LearnOdd {
 
 
   protected int[] equivalenceQuery(OddAccessStringNode oddas) {
-    OddAccessStringNode care_set = new OddAccessStringNode(-1, new int[]{}, OddAccessStringNode.NodeType.NORMAL);
-    care_set.setChild(0, new int[]{}, new OddAccessStringNode(-1, new int[]{}, OddAccessStringNode.NodeType.ONE_SINK));
-    care_set.setChild(1, new int[]{}, new OddAccessStringNode(-1, new int[]{}, OddAccessStringNode.NodeType.ONE_SINK));
+    // use this if you want care_set to be tautological
+    // OddAccessStringNode care_set = new OddAccessStringNode(-1, new int[]{}, OddAccessStringNode.NodeType.NORMAL);
+    // care_set.setChild(0, new int[]{}, new OddAccessStringNode(-1, new int[]{}, OddAccessStringNode.NodeType.ONE_SINK));
+    // care_set.setChild(1, new int[]{}, new OddAccessStringNode(-1, new int[]{}, OddAccessStringNode.NodeType.ONE_SINK));
 
-    care_set = kAwayFromInst(5);
+    // use this for radius r care_set
+    OddAccessStringNode care_set = kAwayFromInst(this.radius);
 
     return equivalenceQuery(oddas, care_set);
   }
 
   private OddAccessStringNode kAwayFromInst(int k) {
     int num_features = this.getNumFeatures();
-    int inst[] = new int[]{
-
-      
+    int insts[][] = new int[][] {
+    {
       0, 0, 1, 1, 1, 1, 0, 0,
       0, 1, 1, 1, 1, 1, 1, 0,
       1, 1, 0, 0, 0, 0, 1, 1,
@@ -147,17 +170,18 @@ public class LearnOddFromCnf extends LearnOdd {
       1, 1, 0, 0, 0, 0, 1, 1,
       0, 1, 1, 1, 1, 1, 1, 0,
       0, 0, 1, 1, 1, 1, 0, 0
-      
-      /*0, 0, 1, 1, 1, 1, 0, 0,
+    },
+    {
+      0, 0, 1, 1, 1, 1, 0, 0,
       0, 1, 1, 1, 1, 1, 1, 0,
       0, 1, 0, 0, 0, 0, 1, 0,
       0, 0, 1, 1, 1, 1, 0, 0,
       0, 0, 1, 1, 1, 1, 0, 0,
       0, 1, 0, 0, 0, 0, 1, 0,
       0, 1, 1, 1, 1, 1, 1, 0,
-      0, 0, 1, 1, 1, 1, 0, 0*/
-
-      /*
+      0, 0, 1, 1, 1, 1, 0, 0
+    },
+    {
       0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 1, 0, 0, 1, 0, 0,
       0, 0, 1, 0, 0, 1, 0, 0,
@@ -165,8 +189,10 @@ public class LearnOddFromCnf extends LearnOdd {
       0, 1, 0, 0, 0, 0, 1, 0,
       0, 1, 1, 0, 0, 1, 1, 0,
       0, 0, 1, 1, 1, 1, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0*/
+      0, 0, 0, 0, 0, 0, 0, 0
+    },
     };
+    int inst[] = insts[this.center_id];
 
     OddAccessStringNode dummy = new OddAccessStringNode(-1, new int[]{}, OddAccessStringNode.NodeType.NORMAL);
     OddAccessStringNode root = new OddAccessStringNode(0, new int[]{}, OddAccessStringNode.NodeType.NORMAL);
@@ -200,7 +226,7 @@ public class LearnOddFromCnf extends LearnOdd {
     dummy.setChild(0, new int[]{}, root);
     dummy.setChild(1, new int[]{}, root);
 
-    dummy.writeToFile("./constraint.obddas");
+    //dummy.writeToFile("./constraint.obddas");
 
     return dummy;
   }

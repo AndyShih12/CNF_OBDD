@@ -48,15 +48,15 @@ public abstract class LearnOdd {
 
     int counter = 0;
     initialHypothesis(e0, e1);
-    System.out.println(Arrays.toString(e0) + " " + Arrays.toString(e1));
+    //System.out.println(Arrays.toString(e0) + " " + Arrays.toString(e1));
     int[] e = equivalenceQuery(oddas);
     while (e != null) {
       //System.out.println("---");
       //System.out.println("e: " + Arrays.toString(e));
       //if (counter % 100 == 0) {
-      //  this.oddas.writeToFile("output/myOBDDAS" + counter + ".obddas");
+        this.oddas.writeToFile("output/myOBDDAS" + counter + ".obddas");
       //}
-      //counter += 1;
+      counter += 1;
       updateHypothesis(e);
       e = equivalenceQuery(oddas);
     }

@@ -1,2 +1,2 @@
 #Don't edit this file while ./run is running
-riss_binary/riss-5.0 2> /dev/null | grep "^[sv]" | cut -d' ' -f-200
+riss_binary/riss-5.0 2> /dev/null | grep "^[sv]" | cut -d' ' -f-500
