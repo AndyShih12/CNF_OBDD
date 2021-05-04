@@ -21,8 +21,23 @@ Requires:
 Python2
 torch
 Java
+cmake3
 
-Use the ./run script to start the experiments.
+
+First you have to build the riss-solver coprocessor
+Follow the setups in https://github.com/nmanthey/riss-solver/blob/master/doc/TUTORIAL.md
+In particular:
+```
+cd bnn/BinaryNet/cpp/
+git clone https://github.com/nmanthey/riss-solver.git
+cd riss-solver
+mkdir -p build
+cd build
+cmake ..
+make coprocessor
+```
+
+Use the ./run_start script to start the experiments.
 
 Change the arguments [num_features, num_hidden, radius, type] as needed.
 
